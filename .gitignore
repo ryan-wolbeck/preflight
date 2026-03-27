@@ -1,0 +1,21 @@
+# Python caches / artifacts
+__pycache__/
+*.py[cod]
+*.so
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Environments
+.venv/
+venv/
+.conda-envs/
+
+# OS / editor noise
+.DS_Store

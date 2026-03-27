@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=59", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "preflight-data"
+version = "0.1.0"
+description = "Dataset readiness checker for machine learning — run a pre-flight checklist on any DataFrame before training."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "preflight contributors" }]
+requires-python = ">=3.9"
+keywords = ["machine-learning", "data-quality", "eda", "pandas", "dataset"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "pandas>=1.3",
+    "numpy>=1.21",
+]
+
+[project.optional-dependencies]
+stats = [
+    "scipy>=1.7",
+]
+ml = [
+    "scikit-learn>=1.0",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=24.0",
+    "mypy>=1.11",
+    "pandas-stubs>=2.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/preflight-ml/preflight"
+Issues   = "https://github.com/preflight-ml/preflight/issues"
+
+[project.scripts]
+preflight = "preflight.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["preflight*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+markers = [
+    "integration: slower end-to-end and cross-module tests",
+]
+
+[tool.coverage.run]
+source = ["preflight"]
+omit = ["tests/*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312", "py313"]
+include = '\.pyi?$'
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_any_generics = false
+exclude = ["tests/"]
