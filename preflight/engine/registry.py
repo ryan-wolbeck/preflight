@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from importlib.metadata import EntryPoint, entry_points
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, Optional
 
 import pandas as pd
 
@@ -40,7 +40,7 @@ from preflight.config import PreflightConfig
 from preflight.engine.interfaces import CheckContext
 from preflight.model.finding import Finding
 
-CheckCallable = Callable[[pd.DataFrame, str | None, PreflightConfig], list[CheckResult]]
+CheckCallable = Callable[[pd.DataFrame, Optional[str], PreflightConfig], list[CheckResult]]
 NativeCheckCallable = Callable[[pd.DataFrame, CheckContext], list[Finding]]
 
 
@@ -48,8 +48,8 @@ NativeCheckCallable = Callable[[pd.DataFrame, CheckContext], list[Finding]]
 class RegisteredCheck:
     name: str
     kind: Literal["legacy", "native"]
-    run_legacy: CheckCallable | None = None
-    run_native: NativeCheckCallable | None = None
+    run_legacy: Optional[CheckCallable] = None
+    run_native: Optional[NativeCheckCallable] = None
     source: str = "builtin"
 
 

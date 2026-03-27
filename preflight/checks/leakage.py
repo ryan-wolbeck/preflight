@@ -68,7 +68,8 @@ def _temporal_association(dt_series: pd.Series, target: pd.Series) -> Optional[f
     valid = ts.notna() & y.notna()
     if valid.sum() < 20:
         return None
-    x = ts[valid].view("int64").astype(float) / 1e9
+    # Avoid deprecated Series.view() path so CI with -W error remains stable.
+    x = ts[valid].astype("int64", copy=False).to_numpy(dtype="float64") / 1e9
     y_valid = y[valid].astype(float)
     if float(np.nanstd(x)) == 0.0 or float(np.nanstd(y_valid)) == 0.0:
         return None
