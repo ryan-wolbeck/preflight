@@ -5,9 +5,9 @@ Load PreflightConfig from JSON/YAML files.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from dataclasses import fields, is_dataclass
-from typing import Any, TypeVar, get_args, get_origin
+from pathlib import Path
+from typing import Any, TypeVar, cast, get_args, get_origin
 import types
 import typing
 
@@ -30,7 +30,7 @@ def _load_mapping(path: str) -> Any:
         return json.loads(text)
     if lower.endswith(".yml") or lower.endswith(".yaml"):
         try:
-            import yaml  # type: ignore[import-untyped]
+            import yaml
         except Exception as exc:
             raise ValueError("YAML config files require PyYAML installed.") from exc
         return yaml.safe_load(text)
@@ -38,7 +38,7 @@ def _load_mapping(path: str) -> Any:
         return json.loads(text)
     except Exception:
         try:
-            import yaml  # type: ignore[import-untyped]
+            import yaml
         except Exception as exc:
             raise ValueError("Unknown config extension and PyYAML unavailable.") from exc
         return yaml.safe_load(text)
@@ -47,13 +47,13 @@ def _load_mapping(path: str) -> Any:
 def _dataclass_from_dict(cls: type[T], payload: dict[str, Any]) -> T:
     hints = typing.get_type_hints(cls)
     kwargs: dict[str, Any] = {}
-    for field in fields(cls):
+    for field in fields(cast(Any, cls)):
         if field.name not in payload:
             continue
         value = payload[field.name]
         anno = hints.get(field.name, field.type)
         kwargs[field.name] = _coerce_value(anno, value)
-    return cls(**kwargs)  # type: ignore[misc]
+    return cls(**kwargs)
 
 
 def _coerce_value(anno: Any, value: Any) -> Any:
@@ -70,7 +70,8 @@ def _coerce_value(anno: Any, value: Any) -> Any:
         return [_coerce_value(inner, item) for item in value]
 
     # Handle Optional/Union by trying each branch.
-    if origin in (typing.Union, types.UnionType):
+    union_type = getattr(types, "UnionType", None)
+    if origin is typing.Union or (union_type is not None and origin is union_type):
         for candidate in get_args(anno):
             if candidate is type(None) and value is None:
                 return None
