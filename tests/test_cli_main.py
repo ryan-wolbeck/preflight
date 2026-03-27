@@ -66,6 +66,30 @@ def test_cli_run_split_markdown(tmp_path):
     assert "Findings" in text
 
 
+def test_cli_run_with_ci_balanced_profile(tmp_path):
+    data = pd.DataFrame({"a": [1, 2, 3, 4], "target": [0, 1, 0, 1]})
+    csv_path = tmp_path / "data.csv"
+    out_json = tmp_path / "run_ci_balanced.json"
+    _write_csv(csv_path, data)
+    rc = main(
+        [
+            "run",
+            str(csv_path),
+            "--target",
+            "target",
+            "--profile",
+            "ci-balanced",
+            "--format",
+            "json",
+            "--output",
+            str(out_json),
+        ]
+    )
+    assert rc in (0, 2)
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["run"]["profile"] == "ci-balanced"
+
+
 def test_cli_legacy_check_and_check_split(tmp_path):
     df = pd.DataFrame({"a": [1, 2, 3, 4], "target": [0, 1, 0, 1]})
     csv_path = tmp_path / "data.csv"

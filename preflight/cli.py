@@ -8,6 +8,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any, Literal, Optional, cast
 
 import pandas as pd
 
@@ -19,6 +20,7 @@ from preflight.config import PreflightConfig, RuntimeConfig
 from preflight.config_loader import load_config_file
 from preflight.engine.registry import discover_entrypoint_plugins
 from preflight.model.policy import Policy
+from preflight.model.report import RunReport
 from preflight.policy import load_policy_file, load_suppressions
 from preflight.policy.default_profiles import parse_fail_on, with_fail_on
 from preflight.renderers import render_html, render_json, render_markdown, render_text
@@ -42,7 +44,7 @@ def _emit(text: str, output: str | None) -> None:
 
 
 def _build_config(
-    mode: str | None,
+    mode: Optional[Literal["accurate", "fast"]],
     sample_rows: int | None,
     base: PreflightConfig | None = None,
 ) -> PreflightConfig:
@@ -85,7 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument(
         "--profile",
         default="exploratory",
-        choices=["exploratory", "ci-strict"],
+        choices=["exploratory", "ci-balanced", "ci-strict"],
         help="Policy profile",
     )
     run_parser.add_argument(
@@ -143,7 +145,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_split_parser.add_argument(
         "--profile",
         default="exploratory",
-        choices=["exploratory", "ci-strict"],
+        choices=["exploratory", "ci-balanced", "ci-strict"],
         help="Policy profile",
     )
     run_split_parser.add_argument(
@@ -334,7 +336,11 @@ def main(argv: list[str] | None = None) -> int:
         base_cfg = (
             load_config_file(args.config_file) if getattr(args, "config_file", None) else None
         )
-        config = _build_config(mode=args.mode, sample_rows=args.sample_rows, base=base_cfg)
+        runtime_mode = args.mode
+        if runtime_mode not in (None, "accurate", "fast"):
+            raise ValueError(f"Unsupported runtime mode: {runtime_mode!r}")
+        typed_mode = cast(Optional[Literal["accurate", "fast"]], runtime_mode)
+        config = _build_config(mode=typed_mode, sample_rows=args.sample_rows, base=base_cfg)
 
     if args.command == "compare":
         current = json.loads(Path(args.current).read_text(encoding="utf-8"))
@@ -487,12 +493,12 @@ def _gate_exit_code(status: str) -> int:
 
 
 def _apply_fail_on_override(
-    run_report,
+    run_report: RunReport,
     profile_name: str,
     fail_on: str,
-    suppressions=None,
+    suppressions: Optional[list[Any]] = None,
     base_policy: Policy | None = None,
-):
+) -> RunReport:
     from preflight.policy.default_profiles import choose_profile
     from preflight.policy.evaluator import evaluate
 

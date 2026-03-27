@@ -54,6 +54,36 @@ def ci_strict() -> Policy:
     )
 
 
+def ci_balanced() -> Policy:
+    return Policy(
+        name="ci-balanced",
+        rules=[
+            Rule(
+                id="target-risk-high-blocker",
+                when=lambda finding: finding.domain == Domain.TARGET_RISK
+                and finding.signal_strength == "high",
+                severity=Severity.CRITICAL,
+                description="High target-risk findings are blocking in balanced CI.",
+            ),
+            Rule(
+                id="target-risk-medium-escalation",
+                when=lambda finding: finding.domain == Domain.TARGET_RISK
+                and finding.signal_strength == "medium",
+                severity=Severity.ERROR,
+                description="Medium target-risk findings escalate to error in balanced CI.",
+            ),
+            Rule(
+                id="split-integrity-high-error",
+                when=lambda finding: finding.domain == Domain.SPLIT_INTEGRITY
+                and finding.signal_strength == "high",
+                severity=Severity.ERROR,
+                description="High split-integrity findings block balanced CI.",
+            ),
+        ],
+        fail_on={Severity.ERROR, Severity.CRITICAL},
+    )
+
+
 def with_fail_on(policy: Policy, fail_on: set[Severity]) -> Policy:
     return Policy(
         name=policy.name,
@@ -83,6 +113,8 @@ def severity_order_for_gate() -> list[Severity]:
 def choose_profile(profile_name: str) -> Policy:
     if profile_name == "exploratory":
         return exploratory()
+    if profile_name == "ci-balanced":
+        return ci_balanced()
     if profile_name == "ci-strict":
         return ci_strict()
     raise ValueError(f"Unknown profile: {profile_name}")

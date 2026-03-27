@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from preflight.cli import (
     _add_suppression,
     _list_suppressions,
@@ -50,6 +52,11 @@ def test_parse_domain_thresholds():
     out = _parse_domain_thresholds(["target_risk=2", "data_quality=5"])
     assert out["target_risk"] == 2
     assert out["data_quality"] == 5
+
+
+def test_parse_domain_thresholds_invalid_input():
+    with pytest.raises(ValueError):
+        _parse_domain_thresholds(["bad-value"])
 
 
 def test_plugins_doctor_pass(monkeypatch):

@@ -5,7 +5,7 @@ Execution engine for running registered checks.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 
@@ -37,7 +37,8 @@ def prepare_runtime_df(df: pd.DataFrame, config: PreflightConfig) -> pd.DataFram
 
     if sample_rows is None or sample_rows >= len(df):
         return df
-    return df.sample(n=sample_rows, random_state=runtime.random_state)
+    sampled = df.sample(n=sample_rows, random_state=runtime.random_state)
+    return cast(pd.DataFrame, sampled)
 
 
 def run_registered_checks(

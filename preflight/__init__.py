@@ -17,7 +17,7 @@ Quick start
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -387,8 +387,12 @@ def _compute_categorical_tvd(train_col: pd.Series, test_col: pd.Series) -> Optio
     train_dist = train.value_counts(normalize=True)
     test_dist = test.value_counts(normalize=True)
     all_cats = train_dist.index.union(test_dist.index)
-    p = train_dist.reindex(all_cats, fill_value=0.0).astype(float).values
-    q = test_dist.reindex(all_cats, fill_value=0.0).astype(float).values
+    p = np.asarray(
+        train_dist.reindex(all_cats, fill_value=0.0).astype(float).to_numpy(), dtype=float
+    )
+    q = np.asarray(
+        test_dist.reindex(all_cats, fill_value=0.0).astype(float).to_numpy(), dtype=float
+    )
     tvd = 0.5 * float(np.abs(p - q).sum())
     return tvd
 
@@ -410,7 +414,8 @@ def _prepare_runtime_df(df: pd.DataFrame, config: PreflightConfig) -> pd.DataFra
 
     if sample_rows is None or sample_rows >= len(df):
         return df
-    return df.sample(n=sample_rows, random_state=runtime.random_state)
+    sampled = df.sample(n=sample_rows, random_state=runtime.random_state)
+    return cast(pd.DataFrame, sampled)
 
 
 from preflight.api import run, run_split  # noqa: E402

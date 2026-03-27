@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Optional, Set
 
 from preflight.model.finding import Domain, Finding, Severity
 from preflight.model.policy import Policy, Rule
@@ -65,7 +65,7 @@ def _load_mapping(path: str) -> Any:
         return json.loads(text)
     except Exception:
         try:
-            import yaml  # type: ignore[import-untyped]
+            import yaml
         except Exception as exc:
             raise ValueError("Unknown policy file extension and PyYAML is unavailable.") from exc
         return yaml.safe_load(text)
@@ -99,7 +99,7 @@ def _parse_score_weights(value: Any) -> dict[Severity, float] | None:
     return out
 
 
-def _build_matcher(match: dict[str, Any]):
+def _build_matcher(match: dict[str, Any]) -> Callable[[Finding], bool]:
     domain_token = match.get("domain")
     signal = match.get("signal_strength")
     signal_in = match.get("signal_strength_in")
@@ -110,7 +110,7 @@ def _build_matcher(match: dict[str, Any]):
     if isinstance(domain_token, str):
         domain = Domain(domain_token)
 
-    signal_allowed: set[str] | None = None
+    signal_allowed: Optional[Set[str]] = None
     if isinstance(signal, str):
         signal_allowed = {signal}
     elif isinstance(signal_in, list):

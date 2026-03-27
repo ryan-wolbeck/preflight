@@ -45,7 +45,7 @@ def run(df: pd.DataFrame, context: CheckContext) -> list[Finding]:
         corr = float(abs(aligned.iloc[:, 0].corr(aligned.iloc[:, 1])))
         if np.isnan(corr):
             continue
-        rec = {"column": str(col), "abs_corr": round(corr, 4)}
+        rec: dict[str, float | str] = {"column": str(col), "abs_corr": float(round(corr, 4))}
         if corr >= cfg.corr_fail_threshold:
             flagged_fail.append(rec)
         elif corr >= cfg.corr_warn_threshold:

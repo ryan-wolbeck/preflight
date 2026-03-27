@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 
 from preflight.config import PreflightConfig
 from preflight.model.finding import Domain, Evidence, Finding, Severity
@@ -238,7 +239,9 @@ def run_split_checks(
     return findings
 
 
-def _compute_psi(expected: np.ndarray, actual: np.ndarray, n_bins: int = 10) -> float | None:
+def _compute_psi(
+    expected: NDArray[np.float64], actual: NDArray[np.float64], n_bins: int = 10
+) -> float | None:
     if len(expected) < n_bins or len(actual) < n_bins:
         return None
     lower = min(float(expected.min()), float(actual.min()))
@@ -247,10 +250,11 @@ def _compute_psi(expected: np.ndarray, actual: np.ndarray, n_bins: int = 10) -> 
         return 0.0
     bins = np.linspace(lower, upper, n_bins + 1)
 
-    def _pct(values: np.ndarray) -> np.ndarray:
+    def _pct(values: NDArray[np.float64]) -> NDArray[np.float64]:
         counts, _ = np.histogram(values, bins=bins)
         pct = counts / max(1, len(values))
-        return np.where(pct == 0, 1e-4, pct).astype(float)
+        out = np.where(pct == 0, 1e-4, pct).astype(float)
+        return np.asarray(out, dtype=np.float64)
 
     p = _pct(expected)
     q = _pct(actual)

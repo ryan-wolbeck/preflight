@@ -83,6 +83,11 @@ def _recommendations_for(result: CheckResult) -> list[str]:
     return ["Review this finding and document expected behavior or remediation."]
 
 
+def _docs_url_for(result: CheckResult) -> str:
+    category_slug = result.category.lower().replace(" ", "-")
+    return f"https://github.com/preflight-ml/preflight/blob/main/docs/checks/{category_slug}.md"
+
+
 def finding_from_check_result(result: CheckResult) -> Finding:
     metrics: dict[str, float | int | str | bool] = {}
     if isinstance(result.details, dict):
@@ -100,6 +105,8 @@ def finding_from_check_result(result: CheckResult) -> Finding:
         ),
         affected_columns=_extract_affected_columns(result.details),
         recommendations=_recommendations_for(result),
+        suggested_action=_recommendations_for(result)[0],
+        docs_url=_docs_url_for(result),
         details={"legacy_category": result.category, "legacy_penalty": result.penalty},
         severity=_severity_from_legacy(result),
     )

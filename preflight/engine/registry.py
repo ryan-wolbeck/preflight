@@ -118,7 +118,6 @@ def load_entrypoint_checks(group: str = "preflight.checks") -> list[RegisteredCh
 
 
 def discover_entrypoint_plugins(group: str = "preflight.checks") -> list[dict[str, Any]]:
-    discovered: list[RegisteredCheck] = []
     diagnostics: list[dict[str, Any]] = []
     try:
         eps = entry_points()
@@ -126,7 +125,8 @@ def discover_entrypoint_plugins(group: str = "preflight.checks") -> list[dict[st
         if hasattr(eps, "select"):
             group_entries = list(eps.select(group=group))
         else:
-            group_entries = list(eps.get(group, []))  # type: ignore[union-attr]
+            get_method = getattr(eps, "get", None)
+            group_entries = list(get_method(group, [])) if callable(get_method) else []
     except Exception:
         return diagnostics
 

@@ -40,7 +40,11 @@ def run(df: pd.DataFrame, context: CheckContext) -> list[Finding]:
             val = corr.loc[col_a, col_b]
             if np.isnan(val):
                 continue
-            rec = {"col_a": str(col_a), "col_b": str(col_b), "abs_corr": round(float(val), 4)}
+            rec: dict[str, float | str] = {
+                "col_a": str(col_a),
+                "col_b": str(col_b),
+                "abs_corr": float(round(float(val), 4)),
+            }
             if val >= cfg.fail_threshold:
                 fail_pairs.append(rec)
             elif val >= cfg.warn_threshold:

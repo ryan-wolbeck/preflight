@@ -42,6 +42,8 @@ class Finding:
     evidence: Evidence = field(default_factory=Evidence)
     affected_columns: list[str] = field(default_factory=list)
     recommendations: list[str] = field(default_factory=list)
+    suggested_action: str | None = None
+    docs_url: str | None = None
     tags: list[str] = field(default_factory=list)
     details: dict[str, Any] = field(default_factory=dict)
     # Set by policy evaluation stage.
@@ -59,6 +61,8 @@ class Finding:
             "suppressed": self.suppressed,
             "affected_columns": self.affected_columns,
             "recommendations": self.recommendations,
+            "suggested_action": self.suggested_action,
+            "docs_url": self.docs_url,
             "tags": self.tags,
             "details": self.details,
             "evidence": {

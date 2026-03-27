@@ -30,7 +30,7 @@ def _load_mapping(path: str) -> Any:
         return json.loads(text)
     if lower.endswith(".yml") or lower.endswith(".yaml"):
         try:
-            import yaml
+            import yaml  # type: ignore[import-untyped]
         except Exception as exc:
             raise ValueError("YAML config files require PyYAML installed.") from exc
         return yaml.safe_load(text)
