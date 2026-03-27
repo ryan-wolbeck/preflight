@@ -5,13 +5,13 @@ Configuration models for preflight checks and scoring.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, Optional
 
 
 @dataclass(frozen=True)
 class RuntimeConfig:
     mode: Literal["accurate", "fast"] = "accurate"
-    sample_rows: int | None = None
+    sample_rows: Optional[int] = None
     random_state: int = 42
     large_dataset_rows: int = 250_000
     fast_mode_sample_rows: int = 50_000
