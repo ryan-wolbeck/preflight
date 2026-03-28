@@ -6,12 +6,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from importlib.metadata import EntryPoint, entry_points
+import os
 from typing import Any, Callable, Literal, Optional
 
 import pandas as pd
 
 from preflight._types import CheckResult
 from preflight.checks_native import (
+    balance_name,
+    balance_run,
     completeness_name,
     completeness_run,
     correlations_name,
@@ -27,18 +30,12 @@ from preflight.checks_native import (
     types_name,
     types_run,
 )
-from preflight.checks import (
-    balance,
-    completeness,
-    correlations,
-    distributions,
-    duplicates,
-    leakage,
-    types as types_check,
-)
 from preflight.config import PreflightConfig
 from preflight.engine.interfaces import CheckContext
 from preflight.model.finding import Finding
+
+NATIVE_PLUGIN_GROUP = "preflight.checks"
+LEGACY_PLUGIN_GROUP = "preflight.checks.legacy"
 
 CheckCallable = Callable[[pd.DataFrame, Optional[str], PreflightConfig], list[CheckResult]]
 NativeCheckCallable = Callable[[pd.DataFrame, CheckContext], list[Finding]]
@@ -53,47 +50,10 @@ class RegisteredCheck:
     source: str = "builtin"
 
 
-def _run_completeness(
-    df: pd.DataFrame, target: str | None, cfg: PreflightConfig
-) -> list[CheckResult]:
-    return completeness.run(df, target=target, config=cfg.completeness)
-
-
-def _run_balance(df: pd.DataFrame, target: str | None, cfg: PreflightConfig) -> list[CheckResult]:
-    return balance.run(df, target=target, config=cfg.balance)
-
-
-def _run_leakage(df: pd.DataFrame, target: str | None, cfg: PreflightConfig) -> list[CheckResult]:
-    return leakage.run(df, target=target, config=cfg.leakage)
-
-
-def _run_duplicates(
-    df: pd.DataFrame, target: str | None, cfg: PreflightConfig
-) -> list[CheckResult]:
-    del target
-    return duplicates.run(df, config=cfg.duplicates)
-
-
-def _run_distributions(
-    df: pd.DataFrame, target: str | None, cfg: PreflightConfig
-) -> list[CheckResult]:
-    return distributions.run(df, target=target, config=cfg.distributions)
-
-
-def _run_correlations(
-    df: pd.DataFrame, target: str | None, cfg: PreflightConfig
-) -> list[CheckResult]:
-    return correlations.run(df, target=target, config=cfg.correlations)
-
-
-def _run_types(df: pd.DataFrame, target: str | None, cfg: PreflightConfig) -> list[CheckResult]:
-    return types_check.run(df, target=target, config=cfg.types)
-
-
 def default_registry() -> list[RegisteredCheck]:
     checks: list[RegisteredCheck] = [
+        RegisteredCheck(balance_name, kind="native", run_native=balance_run),
         RegisteredCheck(completeness_name, kind="native", run_native=completeness_run),
-        RegisteredCheck("balance", kind="legacy", run_legacy=_run_balance),
         RegisteredCheck(leakage_name, kind="native", run_native=leakage_run),
         RegisteredCheck(duplicates_name, kind="native", run_native=duplicates_run),
         RegisteredCheck(distributions_name, kind="native", run_native=distributions_run),
@@ -106,7 +66,11 @@ def default_registry() -> list[RegisteredCheck]:
 
 
 def load_entrypoint_checks(group: str = "preflight.checks") -> list[RegisteredCheck]:
-    diagnostics = discover_entrypoint_plugins(group=group)
+    diagnostics = discover_entrypoint_plugins(group=group, plugin_mode="native")
+    if _legacy_plugin_fallback_enabled():
+        diagnostics.extend(
+            discover_entrypoint_plugins(group=LEGACY_PLUGIN_GROUP, plugin_mode="legacy")
+        )
     out: list[RegisteredCheck] = []
     for item in diagnostics:
         if item.get("status") != "loaded":
@@ -117,7 +81,11 @@ def load_entrypoint_checks(group: str = "preflight.checks") -> list[RegisteredCh
     return out
 
 
-def discover_entrypoint_plugins(group: str = "preflight.checks") -> list[dict[str, Any]]:
+def discover_entrypoint_plugins(
+    group: str = NATIVE_PLUGIN_GROUP,
+    *,
+    plugin_mode: Literal["native", "legacy"] = "native",
+) -> list[dict[str, Any]]:
     diagnostics: list[dict[str, Any]] = []
     try:
         eps = entry_points()
@@ -134,6 +102,20 @@ def discover_entrypoint_plugins(group: str = "preflight.checks") -> list[dict[st
         try:
             loaded = ep.load()
             if isinstance(loaded, RegisteredCheck):
+                if loaded.kind == "legacy" and plugin_mode != "legacy":
+                    diagnostics.append(
+                        {
+                            "name": ep.name,
+                            "source": ep.value,
+                            "status": "error",
+                            "error": (
+                                "Legacy plugin entry points are disabled in the native plugin "
+                                "group. Use preflight.checks.legacy and set "
+                                "PREFLIGHT_ENABLE_LEGACY_PLUGIN_ENTRYPOINTS=1."
+                            ),
+                        }
+                    )
+                    continue
                 diagnostics.append(
                     {
                         "name": ep.name,
@@ -145,18 +127,28 @@ def discover_entrypoint_plugins(group: str = "preflight.checks") -> list[dict[st
                 )
                 continue
             if callable(loaded):
-                plugin_check = RegisteredCheck(
-                    name=ep.name,
-                    kind="native",
-                    run_native=loaded,  # plugin contract: callable(df, context) -> list[Finding]
-                    source=ep.value,
-                )
+                if plugin_mode == "legacy":
+                    plugin_check = RegisteredCheck(
+                        name=ep.name,
+                        kind="legacy",
+                        run_legacy=loaded,  # plugin contract: callable(df, target, cfg) -> list[CheckResult]
+                        source=ep.value,
+                    )
+                    kind = "legacy"
+                else:
+                    plugin_check = RegisteredCheck(
+                        name=ep.name,
+                        kind="native",
+                        run_native=loaded,  # plugin contract: callable(df, context) -> list[Finding]
+                        source=ep.value,
+                    )
+                    kind = "native"
                 diagnostics.append(
                     {
                         "name": ep.name,
                         "source": ep.value,
                         "status": "loaded",
-                        "kind": "native",
+                        "kind": kind,
                         "check": plugin_check,
                     }
                 )
@@ -179,3 +171,8 @@ def discover_entrypoint_plugins(group: str = "preflight.checks") -> list[dict[st
                 }
             )
     return diagnostics
+
+
+def _legacy_plugin_fallback_enabled() -> bool:
+    token = os.getenv("PREFLIGHT_ENABLE_LEGACY_PLUGIN_ENTRYPOINTS", "").strip().lower()
+    return token in {"1", "true", "yes", "on"}

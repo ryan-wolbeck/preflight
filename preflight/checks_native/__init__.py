@@ -1,3 +1,5 @@
+from preflight.checks_native.balance_native import name as balance_name
+from preflight.checks_native.balance_native import run as balance_run
 from preflight.checks_native.completeness_native import name as completeness_name
 from preflight.checks_native.completeness_native import run as completeness_run
 from preflight.checks_native.correlations_native import name as correlations_name
@@ -15,6 +17,8 @@ from preflight.checks_native.types_native import name as types_name
 from preflight.checks_native.types_native import run as types_run
 
 __all__ = [
+    "balance_name",
+    "balance_run",
     "completeness_name",
     "completeness_run",
     "correlations_name",

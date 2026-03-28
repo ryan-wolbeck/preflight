@@ -61,3 +61,17 @@ def test_load_config_file_unknown_extension_without_yaml_support(tmp_path, monke
     monkeypatch.setattr(builtins, "__import__", _fake_import)
     with pytest.raises(ValueError, match="PyYAML unavailable"):
         load_config_file(str(path))
+
+
+def test_load_config_file_invalid_runtime_mode_fails_fast(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"runtime": {"mode": "turbo"}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="runtime.mode"):
+        load_config_file(str(path))
+
+
+def test_load_config_file_unknown_enabled_check_fails_fast(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"enabled_checks": {"does_not_exist": True}}), encoding="utf-8")
+    with pytest.raises(ValueError, match="unknown check name"):
+        load_config_file(str(path))

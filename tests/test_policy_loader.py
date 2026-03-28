@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from preflight.model.finding import Domain, Evidence, Finding, Severity
 from preflight.policy.loader import load_policy_file
 
@@ -37,3 +39,20 @@ def test_load_policy_file_json(tmp_path):
     assert policy.name == "custom"
     assert len(policy.rules) == 1
     assert policy.rules[0].when(finding) is True
+
+
+def test_load_policy_file_requires_complete_score_weights(tmp_path):
+    path = tmp_path / "policy.json"
+    path.write_text(
+        json.dumps(
+            {
+                "name": "custom",
+                "fail_on": ["critical"],
+                "score_weights": {"info": 0, "warn": 1},
+                "rules": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="missing severity keys"):
+        load_policy_file(str(path))

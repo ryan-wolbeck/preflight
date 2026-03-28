@@ -8,22 +8,12 @@ from dataclasses import replace
 from typing import Any
 
 from preflight._types import CheckResult, Severity as LegacySeverity
+from preflight.constants import CATEGORY_TO_DOMAIN
 from preflight.model.finding import Domain, Evidence, Finding, Severity
-
-_CATEGORY_TO_DOMAIN: dict[str, Domain] = {
-    "Completeness": Domain.DATA_QUALITY,
-    "Class Balance": Domain.DATA_QUALITY,
-    "Leakage Detection": Domain.TARGET_RISK,
-    "Duplicates": Domain.DATA_QUALITY,
-    "Distributional Health": Domain.STAT_ANOMALY,
-    "Feature Correlation": Domain.STAT_ANOMALY,
-    "Data Types": Domain.SCHEMA_CONTRACT,
-    "Train/Test Drift": Domain.SPLIT_INTEGRITY,
-}
 
 
 def domain_from_category(category: str) -> Domain:
-    return _CATEGORY_TO_DOMAIN.get(category, Domain.ADVISORY)
+    return CATEGORY_TO_DOMAIN.get(category, Domain.ADVISORY)
 
 
 def _signal_strength_from_legacy(result: CheckResult) -> str:
@@ -60,22 +50,22 @@ def _extract_affected_columns(details: Any) -> list[str]:
 
 def _recommendations_for(result: CheckResult) -> list[str]:
     cid = result.check_id
-    if "missing" in cid:
+    if cid.startswith("completeness.") or cid.startswith("split.missingness"):
         return [
             "Investigate missingness mechanism",
             "Impute or drop problematic columns with rationale",
         ]
-    if "leakage" in cid:
+    if cid.startswith("leakage."):
         return [
             "Remove leakage-prone features from training",
             "Rebuild features with leakage-safe time/group cutoffs",
         ]
-    if "duplicate" in cid:
+    if cid.startswith("duplicates."):
         return [
             "Deduplicate training data before split",
             "Track duplicate source in ingestion pipeline",
         ]
-    if "drift" in cid:
+    if cid.startswith("split."):
         return [
             "Review split strategy and sampling",
             "Add drift monitoring to data refresh pipeline",
@@ -84,7 +74,7 @@ def _recommendations_for(result: CheckResult) -> list[str]:
 
 
 def _docs_url_for(result: CheckResult) -> str:
-    category_slug = result.category.lower().replace(" ", "-")
+    category_slug = result.category.lower().replace("/", "-").replace(" ", "-")
     return f"https://github.com/preflight-ml/preflight/blob/main/docs/checks/{category_slug}.md"
 
 

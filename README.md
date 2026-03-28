@@ -117,6 +117,12 @@ preflight run data.csv --target churn --profile ci-strict --format json
 preflight run data.csv --target churn --profile ci-balanced --fail-on error,critical
 ```
 
+Policy argument rules:
+
+- Use either `--profile` or `--policy-file` (mutually exclusive).
+- `--fail-on` is only supported with `--profile`.
+- Invalid policy/config files fail fast at load time.
+
 ## CLI reference
 
 ```bash
@@ -190,6 +196,14 @@ Per-finding payload includes evidence and explainability fields:
 ## Legacy compatibility
 
 Legacy `check(...)` and `check_split(...)` APIs are still available for compatibility, but `run(...)` and `run_split(...)` are recommended for policy-first workflows.
+
+Migration status: the policy-first runner now uses native checks for class balance, completeness, leakage, duplicates, distributional health, correlations, and types. Legacy APIs remain supported during migration.
+
+Compatibility namespace:
+
+- `preflight.legacy.check(...)`
+- `preflight.legacy.check_split(...)`
+- `preflight.legacy.Report`
 
 ## Development
 

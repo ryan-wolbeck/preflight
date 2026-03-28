@@ -7,6 +7,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
+from preflight.constants import KNOWN_CHECK_NAMES
+
 
 @dataclass(frozen=True)
 class RuntimeConfig:
@@ -136,3 +138,85 @@ class PreflightConfig:
             "types": True,
         }
     )
+
+    def __post_init__(self) -> None:
+        _validate_runtime(self.runtime)
+        _validate_prob_pair(
+            self.completeness.warn_threshold,
+            self.completeness.fail_threshold,
+            name="completeness",
+        )
+        _validate_prob_pair(
+            self.leakage.corr_warn_threshold,
+            self.leakage.corr_fail_threshold,
+            name="leakage.correlation",
+        )
+        _validate_prob_pair(
+            self.leakage.temporal_warn_threshold,
+            self.leakage.temporal_fail_threshold,
+            name="leakage.temporal",
+        )
+        _validate_prob_pair(
+            self.correlations.warn_threshold,
+            self.correlations.fail_threshold,
+            name="correlations",
+        )
+        _validate_prob_pair(
+            self.split.psi_warn_threshold, self.split.psi_fail_threshold, name="split.psi"
+        )
+        _validate_prob_pair(
+            self.split.categorical_tvd_warn_threshold,
+            self.split.categorical_tvd_fail_threshold,
+            name="split.categorical_tvd",
+        )
+        _validate_prob_pair(
+            self.split.missingness_warn_delta,
+            self.split.missingness_fail_delta,
+            name="split.missingness_delta",
+        )
+        _validate_between(
+            self.distributions.low_var_threshold, 0.0, 1.0, "distributions.low_var_threshold"
+        )
+        _validate_between(
+            self.distributions.high_card_threshold, 0.0, 1.0, "distributions.high_card_threshold"
+        )
+        if self.distributions.scale_order_threshold <= 0:
+            raise ValueError("distributions.scale_order_threshold must be > 0")
+        if self.scoring.caution_threshold < 0 or self.scoring.ready_threshold > 100:
+            raise ValueError("scoring thresholds must stay within [0, 100]")
+        if self.scoring.caution_threshold > self.scoring.ready_threshold:
+            raise ValueError("scoring.caution_threshold must be <= scoring.ready_threshold")
+        _validate_enabled_checks(self.enabled_checks)
+
+
+def _validate_runtime(runtime: RuntimeConfig) -> None:
+    if runtime.mode not in {"accurate", "fast"}:
+        raise ValueError("runtime.mode must be 'accurate' or 'fast'")
+    if runtime.sample_rows is not None and runtime.sample_rows <= 0:
+        raise ValueError("runtime.sample_rows must be > 0 when provided")
+    if runtime.large_dataset_rows <= 0:
+        raise ValueError("runtime.large_dataset_rows must be > 0")
+    if runtime.fast_mode_sample_rows <= 0:
+        raise ValueError("runtime.fast_mode_sample_rows must be > 0")
+
+
+def _validate_between(value: float, low: float, high: float, field_name: str) -> None:
+    if value < low or value > high:
+        raise ValueError(f"{field_name} must be within [{low}, {high}]")
+
+
+def _validate_prob_pair(warn: float, fail: float, *, name: str) -> None:
+    _validate_between(warn, 0.0, 1.0, f"{name}.warn_threshold")
+    _validate_between(fail, 0.0, 1.0, f"{name}.fail_threshold")
+    if warn > fail:
+        raise ValueError(f"{name} warn threshold must be <= fail threshold")
+
+
+def _validate_enabled_checks(enabled_checks: dict[str, bool]) -> None:
+    unknown = set(enabled_checks.keys()) - KNOWN_CHECK_NAMES
+    if unknown:
+        names = ", ".join(sorted(unknown))
+        raise ValueError(f"enabled_checks contains unknown check name(s): {names}")
+    for key, value in enabled_checks.items():
+        if not isinstance(value, bool):
+            raise ValueError(f"enabled_checks[{key!r}] must be boolean")

@@ -36,3 +36,18 @@ def test_run_includes_native_duplicates_and_distributions():
     ids = {finding.check_id for finding in report.findings}
     assert "duplicates.exact" in ids
     assert "distributions.health" in ids
+
+
+def test_run_uses_native_balance_check_no_legacy_adapter_fields():
+    df = pd.DataFrame(
+        {
+            "target": [0] * 91 + [1] * 9,
+            "feature": list(range(100)),
+        }
+    )
+    report = preflight.run(df, target="target", profile="exploratory")
+    balance = next(
+        finding for finding in report.findings if finding.check_id == "balance.class_imbalance"
+    )
+    assert balance.severity.value in {"warn", "error"}
+    assert not (balance.details and "legacy_category" in balance.details)

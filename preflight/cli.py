@@ -86,7 +86,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--target", default=None, help="Target column name")
     run_parser.add_argument(
         "--profile",
-        default="exploratory",
+        default=None,
         choices=["exploratory", "ci-balanced", "ci-strict"],
         help="Policy profile",
     )
@@ -144,7 +144,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_split_parser.add_argument("test_path", help="Test dataset path (.csv or .parquet)")
     run_split_parser.add_argument(
         "--profile",
-        default="exploratory",
+        default=None,
         choices=["exploratory", "ci-balanced", "ci-strict"],
         help="Policy profile",
     )
@@ -394,10 +394,12 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.command == "run":
+        _validate_policy_args(args, parser)
         df = _load_table(args.path)
         suppressions = load_suppressions(args.suppressions)
         policy_obj = load_policy_file(args.policy_file) if args.policy_file else None
-        policy = policy_obj if policy_obj is not None else args.profile
+        profile_name = args.profile or "exploratory"
+        policy = policy_obj if policy_obj is not None else profile_name
         run_report = run_api(
             df,
             target=args.target,
@@ -428,11 +430,13 @@ def main(argv: list[str] | None = None) -> int:
         return _gate_exit_code(run_report.gate.status)
 
     if args.command == "run-split":
+        _validate_policy_args(args, parser)
         train = _load_table(args.train_path)
         test = _load_table(args.test_path)
         suppressions = load_suppressions(args.suppressions)
         policy_obj = load_policy_file(args.policy_file) if args.policy_file else None
-        policy = policy_obj if policy_obj is not None else args.profile
+        profile_name = args.profile or "exploratory"
+        policy = policy_obj if policy_obj is not None else profile_name
         run_report = run_split_api(
             train,
             test,
@@ -645,6 +649,19 @@ def _plugins_doctor(output_format: str = "text") -> int:
         else:
             print(f"  - [error] {name} ({source}): {item.get('error')}")
     return 2 if errors else 0
+
+
+def _validate_policy_args(args: argparse.Namespace, parser: argparse.ArgumentParser) -> None:
+    profile = getattr(args, "profile", None)
+    policy_file = getattr(args, "policy_file", None)
+    fail_on = getattr(args, "fail_on", None)
+
+    if profile and policy_file:
+        parser.error("Use either --profile or --policy-file, not both.")
+    if policy_file and fail_on:
+        parser.error("Use --fail-on with --profile only; set fail_on inside the policy file.")
+    if fail_on is not None and not str(fail_on).strip():
+        parser.error("--fail-on must not be empty.")
 
 
 if __name__ == "__main__":

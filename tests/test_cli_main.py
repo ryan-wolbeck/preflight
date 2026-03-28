@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from preflight.cli import main
 
@@ -227,3 +228,59 @@ def test_cli_plugins_doctor_error_branch(monkeypatch):
     )
     rc = main(["plugins", "doctor", "--format", "json"])
     assert rc == 2
+
+
+def test_cli_run_rejects_profile_with_policy_file(tmp_path):
+    data = pd.DataFrame({"a": [1, 2], "target": [0, 1]})
+    csv_path = tmp_path / "data.csv"
+    policy_path = tmp_path / "policy.json"
+    _write_csv(csv_path, data)
+    policy_path.write_text(
+        json.dumps(
+            {
+                "name": "p",
+                "fail_on": ["error"],
+                "score_weights": {"info": 0, "warn": 1, "error": 2, "critical": 4},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "run",
+                str(csv_path),
+                "--profile",
+                "ci-balanced",
+                "--policy-file",
+                str(policy_path),
+            ]
+        )
+
+
+def test_cli_run_rejects_fail_on_with_policy_file(tmp_path):
+    data = pd.DataFrame({"a": [1, 2], "target": [0, 1]})
+    csv_path = tmp_path / "data.csv"
+    policy_path = tmp_path / "policy.json"
+    _write_csv(csv_path, data)
+    policy_path.write_text(
+        json.dumps(
+            {
+                "name": "p",
+                "fail_on": ["error"],
+                "score_weights": {"info": 0, "warn": 1, "error": 2, "critical": 4},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "run",
+                str(csv_path),
+                "--policy-file",
+                str(policy_path),
+                "--fail-on",
+                "error,critical",
+            ]
+        )
