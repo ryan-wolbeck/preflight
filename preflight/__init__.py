@@ -51,7 +51,6 @@ __all__ = [
 
 from preflight.api import run, run_split  # noqa: E402
 
-
 _compute_psi = legacy_api._compute_psi
 
 
