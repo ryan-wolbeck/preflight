@@ -49,6 +49,12 @@ def _extract_affected_columns(details: Any) -> list[str]:
 
 
 def _recommendations_for(result: CheckResult) -> list[str]:
+    if isinstance(result.details, dict):
+        raw = result.details.get("recommendations")
+        if isinstance(raw, list):
+            recommendations = [str(item) for item in raw if str(item).strip()]
+            if recommendations:
+                return recommendations
     cid = result.check_id
     if cid.startswith("completeness.") or cid.startswith("split.missingness"):
         return [
@@ -84,6 +90,13 @@ def finding_from_check_result(result: CheckResult) -> Finding:
         for key, value in result.details.items():
             if isinstance(value, (int, float, str, bool)):
                 metrics[key] = value
+    recommendations = _recommendations_for(result)
+    suggested_action: str | None = recommendations[0] if recommendations else None
+    if isinstance(result.details, dict):
+        raw_action = result.details.get("suggested_action")
+        if isinstance(raw_action, str) and raw_action.strip():
+            suggested_action = raw_action
+
     finding = Finding(
         check_id=result.check_id,
         title=result.message,
@@ -94,8 +107,8 @@ def finding_from_check_result(result: CheckResult) -> Finding:
             metrics=metrics, samples=result.details if isinstance(result.details, dict) else None
         ),
         affected_columns=_extract_affected_columns(result.details),
-        recommendations=_recommendations_for(result),
-        suggested_action=_recommendations_for(result)[0],
+        recommendations=recommendations,
+        suggested_action=suggested_action,
         docs_url=_docs_url_for(result),
         details={"legacy_category": result.category, "legacy_penalty": result.penalty},
         severity=_severity_from_legacy(result),

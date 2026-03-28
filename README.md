@@ -184,6 +184,9 @@ Per-finding payload includes evidence and explainability fields:
 - `suggested_action`, `docs_url`
 - `evidence.metrics`, `evidence.threshold`, `evidence.samples`
 
+Schema compatibility policy:
+- [SCHEMA_COMPATIBILITY.md](/Users/rwolbeck/preflight/docs/SCHEMA_COMPATIBILITY.md)
+
 ## Examples
 
 - Realistic workflow notebook:
@@ -192,6 +195,13 @@ Per-finding payload includes evidence and explainability fields:
   - [preflight_public_datasets_demo.ipynb](/Users/rwolbeck/preflight/notebooks/preflight_public_datasets_demo.ipynb)
 - Script demo:
   - [public_datasets_demo.py](/Users/rwolbeck/preflight/examples/public_datasets_demo.py)
+
+## Docs
+
+- Add a check:
+  - [ADDING_A_CHECK.md](/Users/rwolbeck/preflight/docs/ADDING_A_CHECK.md)
+- Troubleshooting:
+  - [TROUBLESHOOTING.md](/Users/rwolbeck/preflight/docs/TROUBLESHOOTING.md)
 
 ## Legacy compatibility
 

@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 
 import preflight
+from preflight.model.finding import Severity
+from preflight.policy.default_profiles import ci_balanced, with_fail_on
 
 
 def test_run_returns_policy_report(clean_df):
@@ -30,3 +32,10 @@ def test_run_split_returns_policy_report(clean_df):
     payload = report.to_dict()
     assert payload["schema_version"] == "2.0.0"
     assert payload["dataset"]["rows"] == len(train) + len(test)
+
+
+def test_run_end_to_end_gate_fail_with_custom_fail_on_warn(missing_df):
+    policy = with_fail_on(ci_balanced(), fail_on={Severity.WARN, Severity.ERROR, Severity.CRITICAL})
+    report = preflight.run(missing_df, profile=policy)
+    assert report.gate.status == "FAIL"
+    assert report.gate.reasons

@@ -45,3 +45,19 @@ def test_domain_and_recommendation_defaults():
     )
     recs = _recommendations_for(result)
     assert len(recs) == 1
+
+
+def test_plugin_recommendations_and_suggested_action_override():
+    result = CheckResult(
+        check_id="plugin.custom_signal",
+        category="Custom",
+        severity=LegacySeverity.WARN,
+        message="Plugin finding",
+        details={
+            "recommendations": ["Rotate key", "Add monitor"],
+            "suggested_action": "Rotate key now",
+        },
+    )
+    finding = finding_from_check_result(result)
+    assert finding.recommendations == ["Rotate key", "Add monitor"]
+    assert finding.suggested_action == "Rotate key now"
