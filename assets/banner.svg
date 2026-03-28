@@ -1,0 +1,265 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#050C18"/>
+      <stop offset="45%"  stop-color="#0B1A32"/>
+      <stop offset="100%" stop-color="#050C18"/>
+    </linearGradient>
+
+    <!-- Left-side blue glow -->
+    <radialGradient id="glowL" cx="22%" cy="50%" r="42%">
+      <stop offset="0%" stop-color="#1A3560" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#050C18" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Right-side green glow -->
+    <radialGradient id="glowR" cx="78%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#083320" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#050C18" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Logo circle gradient -->
+    <radialGradient id="logoCircle" cx="35%" cy="28%" r="72%">
+      <stop offset="0%"   stop-color="#1B3A62"/>
+      <stop offset="60%"  stop-color="#0D1F3C"/>
+      <stop offset="100%" stop-color="#060D1A"/>
+    </radialGradient>
+
+    <!-- Badge gradient -->
+    <radialGradient id="badgeGrad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%"   stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </radialGradient>
+
+    <!-- Terminal card gradient -->
+    <linearGradient id="card" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#101D32"/>
+      <stop offset="100%" stop-color="#090F1E"/>
+    </linearGradient>
+
+    <!-- Dot grid pattern -->
+    <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="0.9" fill="white" fill-opacity="0.04"/>
+    </pattern>
+  </defs>
+
+  <!-- ═══ BACKGROUND ═══ -->
+  <rect width="1200" height="360" fill="url(#bg)"/>
+  <rect width="1200" height="360" fill="url(#glowL)"/>
+  <rect width="1200" height="360" fill="url(#glowR)"/>
+  <rect width="1200" height="360" fill="url(#dots)"/>
+
+  <!-- Subtle horizontal rule at top and bottom -->
+  <line x1="0" y1="1" x2="1200" y2="1" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+  <line x1="0" y1="359" x2="1200" y2="359" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- ═══ LEFT ZONE — Logo + Wordmark ═══ -->
+
+  <!-- Logo circle -->
+  <circle cx="82" cy="178" r="54" fill="url(#logoCircle)"/>
+  <circle cx="82" cy="178" r="52" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/>
+
+  <!-- Airplane in small logo
+       Scale factor: ~0.26 of full-size design. Points NE (rotate 45). -->
+  <g transform="translate(82,178) rotate(45)" fill="rgba(255,255,255,0.95)">
+    <!-- Fuselage -->
+    <path d="M 0,-32 C 4.7,-25 4.7,-9 4.7,3 C 4.7,15 3,22 0,25 C -3,22 -4.7,15 -4.7,3 C -4.7,-9 -4.7,-25 0,-32 Z"/>
+    <!-- Left wing -->
+    <path d="M -3,-2 L -37,15 L -4,9 Z"/>
+    <!-- Right wing -->
+    <path d="M 3,-2 L 37,15 L 4,9 Z"/>
+    <!-- Left stabilizer -->
+    <path d="M -2,21 L -15,30 L -3,24 Z"/>
+    <!-- Right stabilizer -->
+    <path d="M 2,21 L 15,30 L 3,24 Z"/>
+  </g>
+
+  <!-- Green check badge on logo -->
+  <circle cx="118" cy="216" r="20" fill="#060D1A"/>
+  <circle cx="118" cy="216" r="17" fill="url(#badgeGrad)"/>
+  <path d="M 108,216 L 115,223.5 L 129,207"
+        fill="none" stroke="white" stroke-width="3.2"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wordmark: "preflight" -->
+  <text x="152" y="172"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="58" font-weight="800"
+        fill="white" letter-spacing="-1.5">preflight</text>
+
+  <!-- Tagline -->
+  <text x="154" y="203"
+        font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="15.5" font-weight="400"
+        fill="#7B95B8" letter-spacing="0.1">Dataset readiness checks for ML pipelines</text>
+
+  <!-- Install command pill -->
+  <rect x="153" y="228" width="272" height="32" rx="7"
+        fill="rgba(16,185,129,0.09)" stroke="rgba(16,185,129,0.28)" stroke-width="1"/>
+  <text x="165" y="249"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="13.5" fill="#34D399">$ pip install preflight-data</text>
+
+  <!-- Check category pills — row 1 -->
+  <rect x="153" y="278" width="108" height="22" rx="11"
+        fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="207" y="293" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif" font-size="11" fill="#7B95B8">completeness</text>
+
+  <rect x="267" y="278" width="66" height="22" rx="11"
+        fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="300" y="293" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif" font-size="11" fill="#7B95B8">balance</text>
+
+  <rect x="339" y="278" width="63" height="22" rx="11"
+        fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="370.5" y="293" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif" font-size="11" fill="#7B95B8">leakage</text>
+
+  <rect x="408" y="278" width="80" height="22" rx="11"
+        fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="448" y="293" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif" font-size="11" fill="#7B95B8">duplicates</text>
+
+  <!-- Pills — row 2 -->
+  <rect x="153" y="305" width="88" height="22" rx="11"
+        fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="197" y="320" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif" font-size="11" fill="#7B95B8">distributions</text>
+
+  <rect x="247" y="305" width="88" height="22" rx="11"
+        fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="291" y="320" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif" font-size="11" fill="#7B95B8">correlations</text>
+
+  <rect x="341" y="305" width="50" height="22" rx="11"
+        fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="366" y="320" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif" font-size="11" fill="#7B95B8">types</text>
+
+  <!-- ═══ RIGHT ZONE — Terminal Card ═══ -->
+  <rect x="512" y="20" width="668" height="320" rx="13"
+        fill="url(#card)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+
+  <!-- Card titlebar -->
+  <rect x="512" y="20" width="668" height="42" rx="13" fill="rgba(255,255,255,0.03)"/>
+  <rect x="512" y="50"  width="668" height="12" fill="rgba(255,255,255,0.03)"/>
+
+  <!-- Traffic lights -->
+  <circle cx="538" cy="41" r="5.5" fill="#FF5F57" opacity="0.8"/>
+  <circle cx="556" cy="41" r="5.5" fill="#FEBC2E" opacity="0.8"/>
+  <circle cx="574" cy="41" r="5.5" fill="#28C840" opacity="0.8"/>
+
+  <!-- Card title text -->
+  <text x="846" y="46" text-anchor="middle"
+        font-family="'Segoe UI',sans-serif"
+        font-size="11" fill="rgba(255,255,255,0.22)" letter-spacing="1.2">TERMINAL</text>
+
+  <!-- ── Code section ── -->
+
+  <!-- Prompt indicator -->
+  <text x="532" y="90"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="13" fill="#475569">$</text>
+  <text x="548" y="90"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="13" fill="#64748B">python</text>
+
+  <!-- Line 1: import preflight -->
+  <text x="532" y="112"
+        font-family="'Consolas','Courier New',monospace" font-size="13.5">
+    <tspan fill="#C792EA">import</tspan>
+    <tspan fill="#E2E8F0"> preflight</tspan>
+  </text>
+
+  <!-- Line 2: report = preflight.check(df, target="churn") -->
+  <text x="532" y="132"
+        font-family="'Consolas','Courier New',monospace" font-size="13.5">
+    <tspan fill="#82AAFF">report</tspan>
+    <tspan fill="#64748B"> = </tspan>
+    <tspan fill="#FFCB6B">preflight</tspan>
+    <tspan fill="#64748B">.</tspan>
+    <tspan fill="#82AAFF">check</tspan>
+    <tspan fill="#64748B">(df, </tspan>
+    <tspan fill="#F78C6C">target</tspan>
+    <tspan fill="#64748B">=</tspan>
+    <tspan fill="#C3E88D">"churn"</tspan>
+    <tspan fill="#64748B">)</tspan>
+  </text>
+
+  <!-- Line 3: print(report) -->
+  <text x="532" y="152"
+        font-family="'Consolas','Courier New',monospace" font-size="13.5">
+    <tspan fill="#FFCB6B">print</tspan>
+    <tspan fill="#64748B">(</tspan>
+    <tspan fill="#82AAFF">report</tspan>
+    <tspan fill="#64748B">)</tspan>
+  </text>
+
+  <!-- Divider -->
+  <line x1="524" y1="168" x2="1168" y2="168"
+        stroke="rgba(255,255,255,0.065)" stroke-width="1"/>
+
+  <!-- ── Output section ── -->
+
+  <!-- Top dashes -->
+  <text x="532" y="190"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="11.5" fill="rgba(255,255,255,0.14)">──────────────────────────────────────────────────────</text>
+
+  <!-- Score / verdict badge -->
+  <rect x="530" y="198" width="84" height="22" rx="4"
+        fill="rgba(16,185,129,0.16)"/>
+  <text x="540" y="214"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="13" font-weight="700" fill="#10B981">✓  READY</text>
+
+  <!-- Score -->
+  <text x="626" y="214"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="13" fill="#4B6280">  Score: </text>
+  <text x="708" y="214"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="13" font-weight="700" fill="white">94</text>
+  <text x="726" y="214"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="13" fill="#3D5270">/100</text>
+  <text x="762" y="214"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="12.5" fill="#2E4060">  ·  1,000 rows  ·  8 columns  ·  target: churn</text>
+
+  <!-- Column header -->
+  <text x="532" y="238"
+        font-family="'Consolas','Courier New',monospace"
+        font-size="11.5" fill="rgba(255,255,255,0.17)">check                status    detail</text>
+
+  <!-- Row 1: completeness PASS -->
+  <text x="532" y="258" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">✓</text>
+  <text x="550" y="258" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#CBD5E1">completeness   </text>
+  <text x="720" y="258" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">PASS </text>
+  <text x="788" y="258" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#3D5880">no missing values</text>
+
+  <!-- Row 2: duplicates PASS -->
+  <text x="532" y="276" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">✓</text>
+  <text x="550" y="276" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#CBD5E1">duplicates     </text>
+  <text x="720" y="276" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">PASS </text>
+  <text x="788" y="276" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#3D5880">0 exact duplicates</text>
+
+  <!-- Row 3: balance WARN -->
+  <text x="532" y="294" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#F59E0B">⚠</text>
+  <text x="550" y="294" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#CBD5E1">balance        </text>
+  <text x="720" y="294" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#F59E0B">WARN </text>
+  <text x="788" y="294" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#3D5880">3.2:1 class ratio — review</text>
+
+  <!-- Row 4: distributions PASS -->
+  <text x="532" y="312" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">✓</text>
+  <text x="550" y="312" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#CBD5E1">distributions  </text>
+  <text x="720" y="312" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">PASS </text>
+  <text x="788" y="312" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#3D5880">all stats nominal</text>
+
+  <!-- Row 5: combined summary -->
+  <text x="532" y="330" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">✓</text>
+  <text x="550" y="330" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#4B6280">correlations · types · leakage</text>
+  <text x="820" y="330" font-family="'Consolas','Courier New',monospace" font-size="13" fill="#10B981">all passed</text>
+</svg>
