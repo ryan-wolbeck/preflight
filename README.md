@@ -66,8 +66,8 @@ Findings:
 
 If you want to see what the generated HTML report looks like, open:
 
-- [preflight_report.html](/Users/rwolbeck/preflight/preflight_report.html)
-- [preflight_public_datasets_demo.ipynb](/Users/rwolbeck/preflight/notebooks/preflight_public_datasets_demo.ipynb)
+- [preflight_report.html](preflight_report.html)
+- [preflight_public_datasets_demo.ipynb](notebooks/preflight_public_datasets_demo.ipynb)
 
 The notebook contains rendered `report.to_html()` output cells.
 
@@ -185,23 +185,23 @@ Per-finding payload includes evidence and explainability fields:
 - `evidence.metrics`, `evidence.threshold`, `evidence.samples`
 
 Schema compatibility policy:
-- [SCHEMA_COMPATIBILITY.md](/Users/rwolbeck/preflight/docs/SCHEMA_COMPATIBILITY.md)
+- [SCHEMA_COMPATIBILITY.md](docs/SCHEMA_COMPATIBILITY.md)
 
 ## Examples
 
 - Realistic workflow notebook:
-  - [simple_example.ipynb](/Users/rwolbeck/preflight/notebooks/simple_example.ipynb)
+  - [simple_example.ipynb](notebooks/simple_example.ipynb)
 - Public dataset demo notebook:
-  - [preflight_public_datasets_demo.ipynb](/Users/rwolbeck/preflight/notebooks/preflight_public_datasets_demo.ipynb)
+  - [preflight_public_datasets_demo.ipynb](notebooks/preflight_public_datasets_demo.ipynb)
 - Script demo:
-  - [public_datasets_demo.py](/Users/rwolbeck/preflight/examples/public_datasets_demo.py)
+  - [public_datasets_demo.py](examples/public_datasets_demo.py)
 
 ## Docs
 
 - Add a check:
-  - [ADDING_A_CHECK.md](/Users/rwolbeck/preflight/docs/ADDING_A_CHECK.md)
+  - [ADDING_A_CHECK.md](docs/ADDING_A_CHECK.md)
 - Troubleshooting:
-  - [TROUBLESHOOTING.md](/Users/rwolbeck/preflight/docs/TROUBLESHOOTING.md)
+  - [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
 
 ## Legacy compatibility
 

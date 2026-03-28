@@ -12,7 +12,7 @@
 
 - Always branch logic on `schema_version`.
 - Ignore unknown fields for forward compatibility.
-- Validate required keys using `preflight.schema.validate_run_payload(...)`.
+- Validate required keys using `preflight.schema.validate_run_report_payload(...)`.
 
 ## Current contract
 
@@ -30,4 +30,3 @@ Nested validation includes:
 - score object types
 - finding severity/domain/signal strength
 - evidence metrics object
-
