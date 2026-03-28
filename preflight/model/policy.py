@@ -58,6 +58,8 @@ class Policy:
                 raise ValueError(f"policy.score_weights[{severity.value!r}] must be finite")
             if weight < 0:
                 raise ValueError(f"policy.score_weights[{severity.value!r}] must be >= 0")
+        if all(weight == 0.0 for weight in self.score_weights.values()):
+            raise ValueError("policy.score_weights must include at least one non-zero weight")
 
 
 @dataclass(frozen=True)

@@ -493,7 +493,9 @@ def main(argv: list[str] | None = None) -> int:
 def _gate_exit_code(status: str) -> int:
     if status == "FAIL":
         return 2
-    return 0
+    if status == "PASS":
+        return 0
+    raise ValueError(f"Unknown gate status: {status!r}")
 
 
 def _apply_fail_on_override(

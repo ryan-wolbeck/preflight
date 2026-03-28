@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "preflight-data"
-version = "0.1.1"
+version = "0.1.2"
 description = "Dataset readiness checker for machine learning — run a pre-flight checklist on any DataFrame before training."
 readme = "README.md"
 license = { file = "LICENSE" }

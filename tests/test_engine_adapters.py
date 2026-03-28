@@ -13,6 +13,8 @@ from preflight.model.finding import Domain, Severity
 def test_extract_affected_columns_variants():
     assert _extract_affected_columns({"columns": {"a": 1, "b": 2}}) == ["a", "b"]
     assert _extract_affected_columns({"columns": [{"column": "x"}, "y"]}) == ["x", "y"]
+    assert _extract_affected_columns({"columns": ("c1", "c2")}) == ["c1", "c2"]
+    assert sorted(_extract_affected_columns({"columns": {"s1", "s2"}})) == ["s1", "s2"]
     assert _extract_affected_columns({}) == []
 
 

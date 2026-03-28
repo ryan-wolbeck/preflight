@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from preflight.cli import main
+from preflight.cli import _gate_exit_code, main
 
 
 def _write_csv(path: Path, df: pd.DataFrame) -> None:
@@ -284,3 +284,63 @@ def test_cli_run_rejects_fail_on_with_policy_file(tmp_path):
                 "error,critical",
             ]
         )
+
+
+def test_gate_exit_code_rejects_unknown_status():
+    with pytest.raises(ValueError, match="Unknown gate status"):
+        _gate_exit_code("MAYBE")
+
+
+def test_cli_run_invalid_input_path_raises(tmp_path):
+    missing_path = tmp_path / "missing.csv"
+    with pytest.raises(FileNotFoundError):
+        main(["run", str(missing_path), "--format", "json"])
+
+
+def test_cli_run_writes_output_html_without_output_file(tmp_path):
+    data = pd.DataFrame({"a": [1, 2, 3, 4], "target": [0, 1, 0, 1]})
+    csv_path = tmp_path / "data.csv"
+    out_html = tmp_path / "only.html"
+    _write_csv(csv_path, data)
+    rc = main(
+        [
+            "run",
+            str(csv_path),
+            "--target",
+            "target",
+            "--format",
+            "text",
+            "--output-html",
+            str(out_html),
+        ]
+    )
+    assert rc in (0, 2)
+    assert out_html.exists()
+
+
+def test_cli_run_uses_config_file(tmp_path):
+    data = pd.DataFrame({"a": [1, 2, 3, 4], "target": [0, 1, 0, 1]})
+    csv_path = tmp_path / "data.csv"
+    out_json = tmp_path / "out.json"
+    cfg_path = tmp_path / "cfg.json"
+    _write_csv(csv_path, data)
+    cfg_path.write_text(
+        json.dumps({"runtime": {"mode": "fast", "sample_rows": 2}}), encoding="utf-8"
+    )
+    rc = main(
+        [
+            "run",
+            str(csv_path),
+            "--target",
+            "target",
+            "--config-file",
+            str(cfg_path),
+            "--format",
+            "json",
+            "--output",
+            str(out_json),
+        ]
+    )
+    assert rc in (0, 2)
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["run"]["sampling"]["rows_analyzed"] == 2

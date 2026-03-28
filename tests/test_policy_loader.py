@@ -56,3 +56,20 @@ def test_load_policy_file_requires_complete_score_weights(tmp_path):
     )
     with pytest.raises(ValueError, match="missing severity keys"):
         load_policy_file(str(path))
+
+
+def test_load_policy_file_rejects_all_zero_score_weights(tmp_path):
+    path = tmp_path / "policy.json"
+    path.write_text(
+        json.dumps(
+            {
+                "name": "custom",
+                "fail_on": ["critical"],
+                "score_weights": {"info": 0, "warn": 0, "error": 0, "critical": 0},
+                "rules": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="non-zero weight"):
+        load_policy_file(str(path))

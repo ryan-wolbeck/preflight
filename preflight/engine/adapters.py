@@ -37,7 +37,7 @@ def _extract_affected_columns(details: Any) -> list[str]:
         cols = details.get("columns")
         if isinstance(cols, dict):
             return [str(c) for c in cols.keys()]
-        if isinstance(cols, list):
+        if isinstance(cols, (list, tuple, set)):
             out: list[str] = []
             for item in cols:
                 if isinstance(item, str):
