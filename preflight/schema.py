@@ -4,6 +4,7 @@ JSON schema contract helpers for RunReport payloads.
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from preflight.model.finding import Domain, Severity
@@ -56,6 +57,8 @@ def validate_run_report_payload(payload: dict[str, Any]) -> list[str]:
         reasons = gate.get("reasons")
         if not isinstance(reasons, list) or not all(isinstance(item, str) for item in reasons):
             errors.append("gate.reasons must be a list[str]")
+        elif any(not item.strip() for item in reasons):
+            errors.append("gate.reasons entries must be non-empty strings")
 
     score = payload.get("score")
     if not isinstance(score, dict):
@@ -63,12 +66,58 @@ def validate_run_report_payload(payload: dict[str, Any]) -> list[str]:
     else:
         if not isinstance(score.get("enabled"), bool):
             errors.append("score.enabled must be boolean")
-        if not isinstance(score.get("value"), (int, float)):
+        score_value = score.get("value")
+        if not isinstance(score_value, (int, float)):
             errors.append("score.value must be numeric")
+        elif not math.isfinite(float(score_value)):
+            errors.append("score.value must be finite")
         if not isinstance(score.get("label"), str):
             errors.append("score.label must be string")
         if not isinstance(score.get("profile"), str):
             errors.append("score.profile must be string")
+
+    run = payload.get("run")
+    if not isinstance(run, dict):
+        errors.append("'run' must be an object")
+    else:
+        if not isinstance(run.get("id"), str):
+            errors.append("run.id must be string")
+        if not isinstance(run.get("timestamp_utc"), str):
+            errors.append("run.timestamp_utc must be string")
+        if not isinstance(run.get("profile"), str):
+            errors.append("run.profile must be string")
+        sampling = run.get("sampling")
+        if not isinstance(sampling, dict):
+            errors.append("run.sampling must be an object")
+        else:
+            if not isinstance(sampling.get("applied"), bool):
+                errors.append("run.sampling.applied must be boolean")
+            if not isinstance(sampling.get("rows_analyzed"), int):
+                errors.append("run.sampling.rows_analyzed must be int")
+            if not isinstance(sampling.get("rows_total"), int):
+                errors.append("run.sampling.rows_total must be int")
+
+    dataset = payload.get("dataset")
+    if not isinstance(dataset, dict):
+        errors.append("'dataset' must be an object")
+    else:
+        if not isinstance(dataset.get("rows"), int):
+            errors.append("dataset.rows must be int")
+        if not isinstance(dataset.get("columns"), int):
+            errors.append("dataset.columns must be int")
+        if dataset.get("target") is not None and not isinstance(dataset.get("target"), str):
+            errors.append("dataset.target must be string or null")
+
+    summary = payload.get("summary")
+    if not isinstance(summary, dict):
+        errors.append("'summary' must be an object")
+    else:
+        if not isinstance(summary.get("severity_counts"), dict):
+            errors.append("summary.severity_counts must be an object")
+        if not isinstance(summary.get("domain_counts"), dict):
+            errors.append("summary.domain_counts must be an object")
+        if not isinstance(summary.get("suppressed_findings"), int):
+            errors.append("summary.suppressed_findings must be int")
 
     findings = payload.get("findings")
     if not isinstance(findings, list):

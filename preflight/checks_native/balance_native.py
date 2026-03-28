@@ -88,6 +88,24 @@ def run(df: pd.DataFrame, context: CheckContext) -> list[Finding]:
             )
         ]
 
+    if n_unique == 1:
+        only_class = str(series.iloc[0])
+        return [
+            Finding(
+                check_id="balance.single_class_target",
+                title=f"Target '{target}' contains only one class ('{only_class}').",
+                domain=Domain.DATA_QUALITY,
+                signal_strength="high",
+                confidence=1.0,
+                evidence=Evidence(metrics={"target_unique_values": 1}),
+                recommendations=[
+                    "Collect additional labeled examples for the missing class before training.",
+                    "Verify target generation logic and class mapping.",
+                ],
+                severity=Severity.ERROR,
+            )
+        ]
+
     counts = series.value_counts()
     total = int(len(series))
     majority_count = int(counts.iloc[0])

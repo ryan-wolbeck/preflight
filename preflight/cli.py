@@ -601,14 +601,17 @@ def _validate_suppressions(
 def _parse_domain_thresholds(items: list[str]) -> dict[str, int]:
     out: dict[str, int] = {}
     for item in items:
-        if "=" not in item:
+        if item.count("=") != 1:
             raise ValueError(f"Invalid --fail-on-domain-increase value: {item!r}")
         domain, threshold = item.split("=", 1)
         domain = domain.strip()
         threshold = threshold.strip()
         if not domain:
             raise ValueError(f"Invalid domain in --fail-on-domain-increase: {item!r}")
-        out[domain] = int(threshold)
+        parsed = int(threshold)
+        if parsed < 0:
+            raise ValueError(f"Threshold must be >= 0 for --fail-on-domain-increase: {item!r}")
+        out[domain] = parsed
     return out
 
 

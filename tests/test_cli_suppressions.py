@@ -57,6 +57,10 @@ def test_parse_domain_thresholds():
 def test_parse_domain_thresholds_invalid_input():
     with pytest.raises(ValueError):
         _parse_domain_thresholds(["bad-value"])
+    with pytest.raises(ValueError):
+        _parse_domain_thresholds(["target_risk=2=extra"])
+    with pytest.raises(ValueError):
+        _parse_domain_thresholds(["target_risk=-1"])
 
 
 def test_plugins_doctor_pass(monkeypatch):

@@ -75,3 +75,10 @@ def test_load_config_file_unknown_enabled_check_fails_fast(tmp_path):
     path.write_text(json.dumps({"enabled_checks": {"does_not_exist": True}}), encoding="utf-8")
     with pytest.raises(ValueError, match="unknown check name"):
         load_config_file(str(path))
+
+
+def test_load_config_file_defaults_include_known_checks(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({}), encoding="utf-8")
+    cfg = load_config_file(str(path))
+    assert "fingerprint" in cfg.enabled_checks

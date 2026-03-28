@@ -51,3 +51,10 @@ def test_run_uses_native_balance_check_no_legacy_adapter_fields():
     )
     assert balance.severity.value in {"warn", "error"}
     assert not (balance.details and "legacy_category" in balance.details)
+
+
+def test_run_balance_single_class_target_is_flagged():
+    df = pd.DataFrame({"target": [0] * 100, "feature": list(range(100))})
+    report = preflight.run(df, target="target", profile="exploratory")
+    finding = next(f for f in report.findings if f.check_id == "balance.single_class_target")
+    assert finding.severity.value == "error"

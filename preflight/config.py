@@ -127,17 +127,7 @@ class PreflightConfig:
     types: TypesConfig = field(default_factory=TypesConfig)
     split: SplitConfig = field(default_factory=SplitConfig)
     scoring: ScoringConfig = field(default_factory=ScoringConfig)
-    enabled_checks: dict[str, bool] = field(
-        default_factory=lambda: {
-            "completeness": True,
-            "balance": True,
-            "leakage": True,
-            "duplicates": True,
-            "distributions": True,
-            "correlations": True,
-            "types": True,
-        }
-    )
+    enabled_checks: dict[str, bool] = field(default_factory=lambda: _default_enabled_checks())
 
     def __post_init__(self) -> None:
         _validate_runtime(self.runtime)
@@ -220,3 +210,7 @@ def _validate_enabled_checks(enabled_checks: dict[str, bool]) -> None:
     for key, value in enabled_checks.items():
         if not isinstance(value, bool):
             raise ValueError(f"enabled_checks[{key!r}] must be boolean")
+
+
+def _default_enabled_checks() -> dict[str, bool]:
+    return {name: True for name in sorted(KNOWN_CHECK_NAMES)}
